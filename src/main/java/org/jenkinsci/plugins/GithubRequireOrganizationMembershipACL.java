@@ -41,7 +41,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * @author Mike
- * 
+ *
  */
 public class GithubRequireOrganizationMembershipACL extends ACL {
 
@@ -53,11 +53,12 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 	private final boolean authenticatedUserReadPermission;
 	private final boolean allowGithubWebHookPermission;
     private final boolean allowCcTrayPermission;
+    private final boolean allowBuildReadPermission;
     private final boolean allowAnonymousReadPermission;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see hudson.security.ACL#hasPermission(org.acegisecurity.Authentication,
 	 * hudson.security.Permission)
 	 */
@@ -141,6 +142,10 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 						log.info("Granting READ access for cctray url: " + requestURI());
 						return true;
 					}
+					if (allowBuildReadPermission && (currentUriPathEndsWith("build") || currentUriPathEndsWith("buildWithParameters")) {
+						log.info("Granting READ access for build url: " + requestURI());
+						return true;
+					}
 					log.finer("Denying anonymous READ permission to url: " + requestURI());
 				}
 				return false;
@@ -171,6 +176,15 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 		}
 	}
 
+	private boolean currentUriPathEndsWith (String specificPath) {
+		String requestUri = requestURI();
+		if (requestUri != null) {
+			return URI.create(requestUri).getPath().endsWith(specificPath);
+		} else {
+			return false;
+		}
+	}
+
 	private String requestURI() {
 		StaplerRequest currentRequest = Stapler.getCurrentRequest();
 		return (currentRequest == null) ? null : currentRequest.getOriginalRequestURI();
@@ -196,11 +210,13 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 			String organizationNames, boolean authenticatedUserReadPermission,
 			boolean allowGithubWebHookPermission,
             boolean allowCcTrayPermission,
+      boolean allowBuildReadPermission,
 			boolean allowAnonymousReadPermission) {
 		super();
 		this.authenticatedUserReadPermission = authenticatedUserReadPermission;
 		this.allowGithubWebHookPermission = allowGithubWebHookPermission;
         this.allowCcTrayPermission = allowCcTrayPermission;
+        this.allowBuildReadPermission = allowBuildReadPermission;
         this.allowAnonymousReadPermission = allowAnonymousReadPermission;
 
 		this.adminUserNameList = new LinkedList<String>();
@@ -239,6 +255,10 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 
     public boolean isAllowCcTrayPermission() {
         return allowCcTrayPermission;
+    }
+
+    public boolean isAllowBuildReadPermission() {
+        return allowBuildReadPermission;
     }
 
     /**

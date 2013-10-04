@@ -55,33 +55,34 @@ import org.kohsuke.stapler.Stapler;
 
 /**
  * @author mocleiri
- * 
- * 
- * 
+ *
+ *
+ *
  */
 public class GithubAuthorizationStrategy extends AuthorizationStrategy {
 
 	/**
 	 * @param allowAnonymousReadPermission
-	 * 
+	 *
 	 */
 	@DataBoundConstructor
 	public GithubAuthorizationStrategy(String adminUserNames,
 			boolean authenticatedUserReadPermission, String organizationNames,
 			boolean allowGithubWebHookPermission, boolean allowCcTrayPermission,
-			boolean allowAnonymousReadPermission) {
+			boolean allowBuildReadPermission, boolean allowAnonymousReadPermission) {
 		super();
 
 		rootACL = new GithubRequireOrganizationMembershipACL(adminUserNames,
 				organizationNames, authenticatedUserReadPermission,
-				allowGithubWebHookPermission, allowCcTrayPermission, allowAnonymousReadPermission);
+				allowGithubWebHookPermission, allowCcTrayPermission,
+				allowBuildReadPermission, allowAnonymousReadPermission);
 	}
 
 	private final GithubRequireOrganizationMembershipACL rootACL;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see hudson.security.AuthorizationStrategy#getRootACL()
 	 */
 	@Override
@@ -93,7 +94,7 @@ public class GithubAuthorizationStrategy extends AuthorizationStrategy {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see hudson.security.AuthorizationStrategy#getGroups()
 	 */
 	@Override
@@ -145,7 +146,14 @@ public class GithubAuthorizationStrategy extends AuthorizationStrategy {
 		return rootACL.isAllowCcTrayPermission();
 	}
 
-	
+	/**
+	 * @return
+	 * @see org.jenkinsci.plugins.GithubRequireOrganizationMembershipACL#isAllowBuildReadPermission()
+	 */
+	public boolean isAllowBuildReadPermission() {
+		return rootACL.isAllowBuildReadPermission();
+	}
+
 	/**
 	 * @return
 	 * @see org.jenkinsci.plugins.GithubRequireOrganizationMembershipACL#isAllowAnonymousReadPermission()
